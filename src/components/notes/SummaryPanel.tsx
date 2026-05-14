@@ -7,7 +7,7 @@ interface SummaryPanelProps {
   bulletPoints: string[]
   keywords?: string[] // unused now but kept for type compatibility
   questions?: { question: string, answer: string }[]
-  method?: 'huggingface' | 'offline'
+  method?: 'huggingface' | 'offline' | 'gemini'
   language?: string
 }
 
