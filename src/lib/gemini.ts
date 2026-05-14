@@ -9,7 +9,7 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-pro-latest',
       systemInstruction: 'Sen profesyonel bir metin analistisin. Görevin, verilen metinleri en ince ayrıntısına kadar inceleyip, okuyucunun konuyu kavramasını sağlayacak akademik düzeyde özet ve sorular üretmektir.'
     })
 

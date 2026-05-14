@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import mammoth from 'mammoth'
 
+if (typeof global.DOMMatrix === 'undefined') {
+  (global as any).DOMMatrix = class DOMMatrix {};
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
