@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
+import MobileHeader from '@/components/layout/MobileHeader'
 import Link from 'next/link'
 import { FileText, Hash, PlusCircle, Clock, TrendingUp, Sparkles } from 'lucide-react'
 
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="md:pl-64 min-h-screen pb-20 md:pb-0">
+      <MobileHeader />
       <Sidebar />
       <Navbar />
       <main className="p-6 md:p-8 max-w-5xl mx-auto">

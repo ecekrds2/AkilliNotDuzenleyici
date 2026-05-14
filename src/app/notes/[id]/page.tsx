@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
+import MobileHeader from '@/components/layout/MobileHeader'
 import SummaryPanel from '@/components/notes/SummaryPanel'
 import { ArrowLeft, Edit3, Trash2, Save, X, Loader2, Clock } from 'lucide-react'
 import Link from 'next/link'
@@ -46,16 +47,20 @@ export default function NoteDetailPage() {
   }
 
   if (loading) return (
-    <div className="md:pl-64 min-h-screen flex items-center justify-center">
+    <div className="md:pl-64 min-h-screen">
+      <MobileHeader />
       <Sidebar /><Navbar />
-      <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+      </div>
     </div>
   )
 
   if (!note) return (
-    <div className="md:pl-64 min-h-screen flex items-center justify-center">
+    <div className="md:pl-64 min-h-screen">
+      <MobileHeader />
       <Sidebar /><Navbar />
-      <div className="text-center">
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <p className="text-white/50 mb-4">Not bulunamadi</p>
         <Link href="/notes" className="btn-primary">Notlara Don</Link>
       </div>
@@ -68,6 +73,7 @@ export default function NoteDetailPage() {
 
   return (
     <div className="md:pl-64 min-h-screen pb-20 md:pb-0">
+      <MobileHeader />
       <Sidebar />
       <Navbar />
       <main className="p-6 md:p-8 max-w-6xl mx-auto">

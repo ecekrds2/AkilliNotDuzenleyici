@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
+import MobileHeader from '@/components/layout/MobileHeader'
 import { ArrowLeft, Sparkles, Loader2, FileText, UploadCloud } from 'lucide-react'
 import Link from 'next/link'
 
@@ -66,6 +67,7 @@ export default function NewNotePage() {
 
   return (
     <div className="md:pl-64 min-h-screen pb-20 md:pb-0">
+      <MobileHeader />
       <Sidebar />
       <Navbar />
       <main className="p-6 md:p-8 max-w-3xl mx-auto">

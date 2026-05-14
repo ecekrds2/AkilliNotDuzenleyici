@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
+import MobileHeader from '@/components/layout/MobileHeader'
 import NoteCard from '@/components/notes/NoteCard'
 import { PlusCircle, Search, FileText, Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -37,6 +38,7 @@ export default function NotesPage() {
 
   return (
     <div className="md:pl-64 min-h-screen pb-20 md:pb-0">
+      <MobileHeader />
       <Sidebar />
       <Navbar />
       <main className="p-6 md:p-8 max-w-4xl mx-auto">
