@@ -136,8 +136,13 @@ export default function NoteDetailPage() {
             {note.shortSummary ? (
               <SummaryPanel
                 shortSummary={note.shortSummary}
+                mediumSummary={note.mediumSummary}
+                detailedSummary={note.detailedSummary}
                 bulletPoints={note.bulletPoints || []}
                 questions={note.questions || []}
+                flashcards={note.flashcards || []}
+                examQuestions={note.examQuestions || []}
+                content={note.content}
                 language={note.language}
               />
             ) : (

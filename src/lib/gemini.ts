@@ -17,19 +17,31 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
       Aşağıdaki metni analiz et ve kesinlikle JSON formatında bir yanıt döndür.
       
       KRİTİK KURALLAR:
-      1. SORULAR: Kesinlikle "X nedir?" veya tırnak içinde kelime seçerek soru sorma. Bu çok basit kalıyor. 
-         Bunun yerine; metindeki fikirleri çarpıştır, "Neden?", "Nasıl?" ve "Sonuç ne olur?" odaklı, 
-         metnin derinliğini sorgulayan 3-5 adet kaliteli soru ve detaylı cevap üret.
-      2. ÖZET: Metni sadece kısaltma, ana fikri ve yazarın niyetini 2-3 güçlü cümleyle açıkla.
-      3. FORMAT: Sadece JSON döndür. Başka hiçbir açıklama yazma.
+      1. ÖZETLER: Metni üç farklı uzunlukta özetle.
+         - shortSummary: En temel fikri veren 1-2 cümle.
+         - mediumSummary: Ana başlıkları ve sonuçları kapsayan 1-2 paragraf.
+         - detailedSummary: Metnin tüm önemli noktalarını, argümanlarını ve detaylarını kapsayan uzun bir özet.
+      2. MADDELER (bulletPoints): Metindeki önemli detayları 5-10 maddelik liste yap.
+      3. FLASHCARDS: Öğrenmeyi kolaylaştırmak için ön yüzünde kavram/soru, arka yüzünde kısa açıklama/cevap olan 5 adet bilgi kartı.
+      4. SINAV SORULARI: Metni test etmek için çoktan seçmeli (A, B, C, D) 3-5 adet sınav sorusu hazırla. Doğru cevabı ve neden o cevabın doğru olduğunu (explanation) ekle.
+      5. FORMAT: Sadece JSON döndür. Başka hiçbir açıklama yazma.
       
       JSON YAPISI:
       {
         "shortSummary": "...",
+        "mediumSummary": "...",
+        "detailedSummary": "...",
         "bulletPoints": ["...", "..."],
         "keywords": ["...", "..."],
-        "questions": [
-          {"question": "Derinlemesine analiz sorusu", "answer": "Metne dayalı kapsamlı cevap"}
+        "questions": [{"question": "...", "answer": "..."}],
+        "flashcards": [{"front": "Kavram/Soru", "back": "Açıklama/Cevap"}],
+        "examQuestions": [
+          {
+            "question": "Soru metni",
+            "options": ["A) Seçenek", "B) Seçenek", "C) Seçenek", "D) Seçenek"],
+            "answer": "Doğru Seçenek (A, B, C veya D)",
+            "explanation": "Neden bu cevap doğru?"
+          }
         ],
         "language": "tr"
       }
@@ -52,9 +64,13 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
     
     return {
       shortSummary: data.shortSummary,
+      mediumSummary: data.mediumSummary || data.shortSummary,
+      detailedSummary: data.detailedSummary || data.shortSummary,
       bulletPoints: data.bulletPoints,
       keywords: data.keywords,
       questions: data.questions,
+      flashcards: data.flashcards || [],
+      examQuestions: data.examQuestions || [],
       language: data.language || 'tr',
       method: 'gemini'
     }

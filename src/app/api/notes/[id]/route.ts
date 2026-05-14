@@ -17,6 +17,8 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     bulletPoints: note.bulletPoints ? JSON.parse(note.bulletPoints) : [],
     keywords: note.keywords ? JSON.parse(note.keywords) : [],
     questions: note.questions ? JSON.parse(note.questions) : [],
+    flashcards: note.flashcards ? JSON.parse(note.flashcards) : [],
+    examQuestions: note.examQuestions ? JSON.parse(note.examQuestions) : [],
   })
 }
 
@@ -36,9 +38,13 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
         title,
         content,
         shortSummary: summary.shortSummary,
+        mediumSummary: summary.mediumSummary,
+        detailedSummary: summary.detailedSummary,
         bulletPoints: JSON.stringify(summary.bulletPoints),
         keywords: JSON.stringify(summary.keywords),
         questions: JSON.stringify(summary.questions),
+        flashcards: JSON.stringify(summary.flashcards),
+        examQuestions: JSON.stringify(summary.examQuestions),
         language: summary.language,
         wordCount: content.split(/\s+/).length,
       },
@@ -48,8 +54,11 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
       bulletPoints: summary.bulletPoints,
       keywords: summary.keywords,
       questions: summary.questions,
+      flashcards: summary.flashcards,
+      examQuestions: summary.examQuestions,
     })
-  } catch {
+  } catch (error) {
+    console.error('Note update error:', error)
     return NextResponse.json({ error: 'Guncelleme basarisiz' }, { status: 500 })
   }
 }

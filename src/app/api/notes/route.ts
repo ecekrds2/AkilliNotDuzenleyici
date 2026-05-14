@@ -14,6 +14,8 @@ export async function GET() {
     bulletPoints: n.bulletPoints ? JSON.parse(n.bulletPoints) : [],
     keywords: n.keywords ? JSON.parse(n.keywords) : [],
     questions: n.questions ? JSON.parse(n.questions) : [],
+    flashcards: n.flashcards ? JSON.parse(n.flashcards) : [],
+    examQuestions: n.examQuestions ? JSON.parse(n.examQuestions) : [],
   })))
 }
 
@@ -30,15 +32,27 @@ export async function POST(req: NextRequest) {
       data: {
         title, content, userId,
         shortSummary: summary.shortSummary,
+        mediumSummary: summary.mediumSummary,
+        detailedSummary: summary.detailedSummary,
         bulletPoints: JSON.stringify(summary.bulletPoints),
         keywords: JSON.stringify(summary.keywords),
         questions: JSON.stringify(summary.questions),
+        flashcards: JSON.stringify(summary.flashcards),
+        examQuestions: JSON.stringify(summary.examQuestions),
         language: summary.language,
         wordCount: content.split(/\s+/).length,
       },
     })
-    return NextResponse.json({ ...note, bulletPoints: summary.bulletPoints, keywords: summary.keywords, questions: summary.questions }, { status: 201 })
-  } catch {
+    return NextResponse.json({ 
+      ...note, 
+      bulletPoints: summary.bulletPoints, 
+      keywords: summary.keywords, 
+      questions: summary.questions,
+      flashcards: summary.flashcards,
+      examQuestions: summary.examQuestions
+    }, { status: 201 })
+  } catch (error) {
+    console.error('Note creation error:', error)
     return NextResponse.json({ error: 'Not olusturulamadi' }, { status: 500 })
   }
 }
