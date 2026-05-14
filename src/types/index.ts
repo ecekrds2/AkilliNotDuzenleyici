@@ -19,5 +19,5 @@ export interface SummaryResult {
   keywords: string[]
   questions: { question: string, answer: string }[]
   language: string
-  method: 'huggingface' | 'offline'
+  method: 'huggingface' | 'offline' | 'gemini'
 }
