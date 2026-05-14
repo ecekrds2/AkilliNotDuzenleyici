@@ -26,19 +26,9 @@ export default function Sidebar() {
       )}
 
       <aside 
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          height: '100%',
-          width: '16rem',
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 50,
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s ease-in-out',
-        }} 
-        className={`glass border-r border-white/[0.06] md:translate-x-0 ${isOpen ? 'flex' : 'hidden md:flex'}`}
+        className={`glass border-r border-white/[0.06] fixed left-0 top-0 h-full w-64 flex flex-col z-50 transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
         <div className="p-6 border-b border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-3">

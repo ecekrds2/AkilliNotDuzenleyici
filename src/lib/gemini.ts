@@ -11,21 +11,22 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
-      Aşağıdaki metni analiz et ve şu formatta bir JSON yanıtı döndür. 
+      Aşağıdaki metni derinlemesine analiz et ve şu formatta bir JSON yanıtı döndür. 
       Yanıt kesinlikle sadece geçerli bir JSON olmalı, başka metin içermemeli.
-      JSON yapısı:
-      {
-        "shortSummary": "Metnin ana fikrini anlatan 2-3 cümlelik akıcı bir özet",
-        "bulletPoints": ["Önemli noktaları içeren en az 5-10 maddelik liste"],
-        "keywords": ["Metindeki en önemli 5-10 anahtar kelime"],
-        "questions": [
-          {"question": "Metinle ilgili düşündürücü bir soru", "answer": "Metne dayalı detaylı cevap"}
-        ],
-        "language": "tr" veya "en"
-      }
+      
+      TALİMATLAR:
+      - "shortSummary": Metnin ana temasını ve en önemli sonucunu anlatan 2-3 cümlelik akıcı bir özet olsun.
+      - "bulletPoints": Metindeki önemli detayları ve alt başlıkları içeren 5-10 maddelik liste.
+      - "keywords": Metni tanımlayan en önemli 5-8 kavram.
+      - "questions": Metinle ilgili 3-5 adet Soru-Cevap çifti oluştur. 
+        ÖNEMLİ: Sorular "Metinde geçen X nedir?" gibi basit kelime bulmaca tarzında olmasın. 
+        Bunun yerine; "Y olayının temel sebebi nedir?", "Yazarın Z konusundaki ana argümanı nedir?", 
+        "Bu süreç nasıl işlemektedir?" gibi metnin içeriğini ve mantığını sorgulayan, 
+        okuyucunun konuyu anlamasını sağlayacak derinlikte sorular olsun.
+      - "language": Metnin dili ("tr" veya "en").
 
       Metin:
-      ${text.slice(0, 10000)}
+      ${text.slice(0, 15000)}
     `
 
     const result = await model.generateContent(prompt)
