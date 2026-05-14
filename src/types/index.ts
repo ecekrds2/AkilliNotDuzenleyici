@@ -27,5 +27,5 @@ export interface SummaryResult {
   flashcards: { front: string, back: string }[]
   examQuestions: { question: string, options: string[], answer: string, explanation: string }[]
   language: string
-  method: 'huggingface' | 'offline' | 'gemini'
+  method: 'huggingface' | 'offline' | 'gemini' | 'groq'
 }
