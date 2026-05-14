@@ -17,14 +17,15 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
       Aşağıdaki metni analiz et ve kesinlikle JSON formatında bir yanıt döndür.
       
       KRİTİK KURALLAR:
-      1. ÖZETLER: Metni üç farklı uzunlukta özetle.
-         - shortSummary: En temel fikri veren 1-2 cümle.
+      1. ÖZETLER: Metni üç farklı uzunlukta özetle. BU ÜÇ ÖZET KESİNLİKLE BİRBİRİNDEN FARKLI VE FARKLI UZUNLUKTA OLMALIDIR. Aynı metni kopyalama.
+         - shortSummary: En temel fikri veren çok kısa 1-2 cümle.
          - mediumSummary: Ana başlıkları ve sonuçları kapsayan 1-2 paragraf.
-         - detailedSummary: Metnin tüm önemli noktalarını, argümanlarını ve detaylarını kapsayan uzun bir özet.
+         - detailedSummary: Metnin tüm önemli noktalarını, argümanlarını ve detaylarını kapsayan çok detaylı ve uzun bir özet.
       2. MADDELER (bulletPoints): Metindeki önemli detayları 5-10 maddelik liste yap.
-      3. FLASHCARDS: Öğrenmeyi kolaylaştırmak için ön yüzünde kavram/soru, arka yüzünde kısa açıklama/cevap olan 5 adet bilgi kartı.
-      4. SINAV SORULARI: Metni test etmek için çoktan seçmeli (A, B, C, D) 3-5 adet sınav sorusu hazırla. Doğru cevabı ve neden o cevabın doğru olduğunu (explanation) ekle.
-      5. FORMAT: Sadece JSON döndür. Başka hiçbir açıklama yazma.
+      3. SORU-CEVAP (questions): Metnin İÇERİĞİYLE DOĞRUDAN İLGİLİ, spesifik ve bağlama dayalı 3-5 adet soru ve detaylı cevap üret. Genel geçer sorular sorma.
+      4. FLASHCARDS: Öğrenmeyi kolaylaştırmak için ön yüzünde kavram/soru, arka yüzünde kısa açıklama/cevap olan 5 adet bilgi kartı.
+      5. SINAV SORULARI: Metni test etmek için çoktan seçmeli (A, B, C, D) 3-5 adet sınav sorusu hazırla. Doğru cevabı ve neden o cevabın doğru olduğunu (explanation) ekle.
+      6. FORMAT: Sadece JSON döndür. Başka hiçbir açıklama yazma.
       
       JSON YAPISI:
       {
@@ -33,7 +34,7 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
         "detailedSummary": "...",
         "bulletPoints": ["...", "..."],
         "keywords": ["...", "..."],
-        "questions": [{"question": "...", "answer": "..."}],
+        "questions": [{"question": "Konuya özel zor bir soru", "answer": "Metne dayalı açıklayıcı cevap"}],
         "flashcards": [{"front": "Kavram/Soru", "back": "Açıklama/Cevap"}],
         "examQuestions": [
           {
