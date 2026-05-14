@@ -11,7 +11,7 @@ interface SummaryPanelProps {
   questions?: { question: string, answer: string }[]
   flashcards?: { front: string, back: string }[]
   examQuestions?: { question: string, options: string[], answer: string, explanation: string }[]
-  method?: 'huggingface' | 'offline' | 'gemini'
+  method?: 'huggingface' | 'offline' | 'gemini' | 'groq'
   language?: string
 }
 
