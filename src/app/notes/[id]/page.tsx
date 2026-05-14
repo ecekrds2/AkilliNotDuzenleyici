@@ -41,9 +41,15 @@ export default function NoteDetailPage() {
   }
 
   const handleDelete = async () => {
-    if (!confirm('Bu notu silmek istediginize emin misiniz?')) return
-    await fetch(`/api/notes/${id}`, { method: 'DELETE' })
-    router.push('/notes')
+    if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Silme işlemi başarısız')
+      router.push('/notes')
+      router.refresh()
+    } catch (err) {
+      alert('Hata: Not silinemedi.')
+    }
   }
 
   if (loading) return (

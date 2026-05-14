@@ -8,35 +8,46 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
   if (!apiKey || apiKey.trim() === '') return null
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: 'Sen profesyonel bir metin analistisin. Görevin, verilen metinleri en ince ayrıntısına kadar inceleyip, okuyucunun konuyu kavramasını sağlayacak akademik düzeyde özet ve sorular üretmektir.'
+    })
 
     const prompt = `
-      Aşağıdaki metni derinlemesine analiz et ve şu formatta bir JSON yanıtı döndür. 
-      Yanıt kesinlikle sadece geçerli bir JSON olmalı, başka metin içermemeli.
+      Aşağıdaki metni analiz et ve kesinlikle JSON formatında bir yanıt döndür.
       
-      TALİMATLAR:
-      - "shortSummary": Metnin ana temasını ve en önemli sonucunu anlatan 2-3 cümlelik akıcı bir özet olsun.
-      - "bulletPoints": Metindeki önemli detayları ve alt başlıkları içeren 5-10 maddelik liste.
-      - "keywords": Metni tanımlayan en önemli 5-8 kavram.
-      - "questions": Metinle ilgili 3-5 adet Soru-Cevap çifti oluştur. 
-        ÖNEMLİ: Sorular "Metinde geçen X nedir?" gibi basit kelime bulmaca tarzında olmasın. 
-        Bunun yerine; "Y olayının temel sebebi nedir?", "Yazarın Z konusundaki ana argümanı nedir?", 
-        "Bu süreç nasıl işlemektedir?" gibi metnin içeriğini ve mantığını sorgulayan, 
-        okuyucunun konuyu anlamasını sağlayacak derinlikte sorular olsun.
-      - "language": Metnin dili ("tr" veya "en").
+      KRİTİK KURALLAR:
+      1. SORULAR: Kesinlikle "X nedir?" veya tırnak içinde kelime seçerek soru sorma. Bu çok basit kalıyor. 
+         Bunun yerine; metindeki fikirleri çarpıştır, "Neden?", "Nasıl?" ve "Sonuç ne olur?" odaklı, 
+         metnin derinliğini sorgulayan 3-5 adet kaliteli soru ve detaylı cevap üret.
+      2. ÖZET: Metni sadece kısaltma, ana fikri ve yazarın niyetini 2-3 güçlü cümleyle açıkla.
+      3. FORMAT: Sadece JSON döndür. Başka hiçbir açıklama yazma.
+      
+      JSON YAPISI:
+      {
+        "shortSummary": "...",
+        "bulletPoints": ["...", "..."],
+        "keywords": ["...", "..."],
+        "questions": [
+          {"question": "Derinlemesine analiz sorusu", "answer": "Metne dayalı kapsamlı cevap"}
+        ],
+        "language": "tr"
+      }
 
-      Metin:
-      ${text.slice(0, 15000)}
+      METİN:
+      ${text.slice(0, 20000)}
     `
 
     const result = await model.generateContent(prompt)
     const response = await result.response
     const rawText = response.text()
     
-    // JSON'ı metin içinden daha güvenli bir şekilde ayıkla (kod blokları olsa da olmasa da)
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/)
-    const jsonText = jsonMatch ? jsonMatch[0] : rawText
+    // JSON ayıklama: İlk { ve son } arasındaki her şeyi al
+    const start = rawText.indexOf('{')
+    const end = rawText.lastIndexOf('}')
+    if (start === -1 || end === -1) throw new Error('AI geçerli bir JSON üretmedi')
     
+    const jsonText = rawText.substring(start, end + 1)
     const data = JSON.parse(jsonText)
     
     return {

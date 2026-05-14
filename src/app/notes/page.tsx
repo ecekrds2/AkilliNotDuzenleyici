@@ -31,9 +31,14 @@ export default function NotesPage() {
   }, [search, notes])
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu notu silmek istediginize emin misiniz?')) return
-    await fetch(`/api/notes/${id}`, { method: 'DELETE' })
-    setNotes(p => p.filter(n => n.id !== id))
+    if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Silme işlemi başarısız')
+      setNotes(p => p.filter(n => n.id !== id))
+    } catch (err) {
+      alert('Hata: Not silinemedi. Lütfen tekrar deneyin.')
+    }
   }
 
   return (
