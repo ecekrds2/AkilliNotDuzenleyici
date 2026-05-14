@@ -27,11 +27,13 @@ export default function SummaryPanel({ shortSummary, bulletPoints, questions = [
         <h2 className="text-white font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-indigo-400" /> AI Analiz Sonuclari
         </h2>
-        <span className={"badge " + (method === 'huggingface'
-          ? "bg-green-500/10 border border-green-500/20 text-green-400"
-          : "bg-indigo-500/10 border border-indigo-500/20 text-indigo-400")}>
+        <span className={"badge " + (method === 'gemini' 
+          ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-400"
+          : method === 'huggingface'
+            ? "bg-green-500/10 border border-green-500/20 text-green-400"
+            : "bg-white/5 border border-white/10 text-white/40")}>
           <Cpu className="w-3 h-3 mr-1" />
-          {method === 'huggingface' ? 'Hugging Face' : 'Offline AI'}
+          {method === 'gemini' ? 'Gemini AI' : method === 'huggingface' ? 'Hugging Face' : 'Offline AI'}
         </span>
       </div>
 

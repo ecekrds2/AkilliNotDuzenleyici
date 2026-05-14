@@ -31,7 +31,11 @@ export async function summarizeWithGemini(text: string): Promise<SummaryResult |
 
     const result = await model.generateContent(prompt)
     const response = await result.response
-    const jsonText = response.text().replace(/```json/g, '').replace(/```/g, '').trim()
+    const rawText = response.text()
+    
+    // JSON'ı metin içinden daha güvenli bir şekilde ayıkla (kod blokları olsa da olmasa da)
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/)
+    const jsonText = jsonMatch ? jsonMatch[0] : rawText
     
     const data = JSON.parse(jsonText)
     

@@ -106,49 +106,31 @@ function generateQuestions(
   scored: Array<{ sentence: string; score: number; index: number }>,
   lang: string
 ): { question: string, answer: string }[] {
-  // En cok gecen ama anlamli anahtar kelimeleri bul (ornek: isimler, kavramlar)
-  const topKeywords = [...tf.entries()]
-    .filter(([word]) => word.length >= 5 && !/\d/.test(word))
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10) // En iyi 10 kelime uzerinden soru uret
-    .map(([word]) => word)
+  // En yuksek skorlu ve anlamli uzunluktaki cumleleri al
+  const topSentences = scored
+    .filter(s => s.sentence.split(' ').length > 10)
+    .slice(0, 5)
 
   const questions: { question: string, answer: string }[] = []
-  const usedSentences = new Set<string>()
-
-  for (const keyword of topKeywords) {
-    const bestSentence = scored.find(s => 
-      s.sentence.toLowerCase().includes(keyword.toLowerCase()) && 
-      !usedSentences.has(s.sentence)
-    )
-
-    if (bestSentence) {
-      usedSentences.add(bestSentence.sentence)
-      const kwCased = keyword.charAt(0).toUpperCase() + keyword.slice(1)
-      
-      const questionTypesTr = [
-        `"${kwCased}" nedir ve metinde nasil aciklanmistir?`,
-        `"${kwCased}" kavraminin icerikteki onemi nedir?`,
-        `Metinde "${kwCased}" hakkinda hangi bilgiler yer aliyor?`
-      ]
-      
-      const questionTypesEn = [
-        `What is "${kwCased}" as explained in the text?`,
-        `What is the significance of "${kwCased}" in the content?`,
-        `What information is provided about "${kwCased}"?`
-      ]
-
-      const qTypes = lang === 'tr' ? questionTypesTr : questionTypesEn
-      const randomQ = qTypes[questions.length % qTypes.length]
-      
-      questions.push({
-        question: randomQ,
-        answer: bestSentence.sentence
-      })
-    }
+  
+  for (const s of topSentences) {
+    let question = ''
+    const txt = s.sentence.toLowerCase()
     
-    // Max 10 soru
-    if (questions.length >= 10) break
+    if (lang === 'tr') {
+      if (txt.includes('için') || txt.includes('nedeniyle')) question = 'Bu durumun temel sebebi veya amacı nedir?'
+      else if (txt.includes('önemli') || txt.includes('kilit')) question = 'Bu konudaki en önemli vurgu nedir?'
+      else question = 'Metindeki bu önemli gelişme neyi açıklamaktadır?'
+    } else {
+      if (txt.includes('because') || txt.includes('due to')) question = 'What is the main cause or reason mentioned here?'
+      else if (txt.includes('important') || txt.includes('key')) question = 'What is the key point emphasized in this section?'
+      else question = 'What insight does this part of the text provide?'
+    }
+
+    questions.push({
+      question,
+      answer: s.sentence
+    })
   }
 
   return questions
