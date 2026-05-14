@@ -31,7 +31,6 @@ export default function NotesPage() {
   }, [search, notes])
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return
     try {
       const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Silme işlemi başarısız')
