@@ -148,9 +148,13 @@ export function summarizeOffline(text: string): SummaryResult {
     const fallback = text.slice(0, 250)
     return {
       shortSummary: fallback,
+      mediumSummary: fallback,
+      detailedSummary: fallback,
       bulletPoints: [fallback],
       keywords: [],
       questions: [],
+      flashcards: [],
+      examQuestions: [],
       language: lang,
       method: 'offline',
     }
@@ -175,5 +179,16 @@ export function summarizeOffline(text: string): SummaryResult {
 
   const questions = generateQuestions(tf, scored, lang)
 
-  return { shortSummary, bulletPoints, keywords: [], questions, language: lang, method: 'offline' }
+  return { 
+    shortSummary, 
+    mediumSummary: shortSummary,
+    detailedSummary: shortSummary,
+    bulletPoints, 
+    keywords: [], 
+    questions, 
+    flashcards: [],
+    examQuestions: [],
+    language: lang, 
+    method: 'offline' 
+  }
 }
