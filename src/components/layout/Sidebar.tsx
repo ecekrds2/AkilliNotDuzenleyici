@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Sparkles, LayoutDashboard, FileText, PlusCircle, LogOut, X, BookOpen } from 'lucide-react'
+import { Sparkles, LayoutDashboard, FileText, PlusCircle, LogOut, X, BookOpen, Book } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useSidebar } from '@/lib/sidebar-context'
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/courses', icon: BookOpen, label: 'Derslerim' },
   { href: '/notes', icon: FileText, label: 'Notlarim' },
   { href: '/notes/new', icon: PlusCircle, label: 'Yeni Not' },
+  { href: '/dokumantasyon', icon: Book, label: 'Dokümantasyon' },
 ]
 
 export default function Sidebar() {
