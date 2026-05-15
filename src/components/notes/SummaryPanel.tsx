@@ -13,6 +13,7 @@ interface SummaryPanelProps {
   examQuestions?: { question: string, options: string[], answer: string, explanation: string }[]
   method?: 'huggingface' | 'offline' | 'gemini' | 'groq'
   language?: string
+  noteId?: string
 }
 
 type TabType = 'summary' | 'bullets' | 'qa' | 'flashcards' | 'exam' | 'chat'
@@ -27,8 +28,9 @@ export default function SummaryPanel({
   flashcards = [],
   examQuestions = [],
   method,
-  content = '' // We need the original content for chat context
-}: SummaryPanelProps & { content?: string }) {
+  content = '', // We need the original content for chat context
+  noteId
+}: SummaryPanelProps & { content?: string, noteId?: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
   const [summaryLevel, setSummaryLevel] = useState<SummaryLevel>('short')
   const [showAllQuestions, setShowAllQuestions] = useState(false)
@@ -36,13 +38,21 @@ export default function SummaryPanel({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({})
   const [showExplanations, setShowExplanations] = useState<Record<number, boolean>>({})
   
+  const [localQuestions, setLocalQuestions] = useState(questions)
+  const [localFlashcards, setLocalFlashcards] = useState(flashcards)
+  const [isRegeneratingQA, setIsRegeneratingQA] = useState(false)
+  const [isRegeneratingFlashcards, setIsRegeneratingFlashcards] = useState(false)
+  
+  useEffect(() => { setLocalQuestions(questions) }, [questions])
+  useEffect(() => { setLocalFlashcards(flashcards) }, [flashcards])
+  
   // Chat States
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'ai', text: string}[]>([])
   const [chatInput, setChatInput] = useState('')
   const [isChatLoading, setIsChatLoading] = useState(false)
 
-  const displayedQuestions = showAllQuestions ? questions : questions.slice(0, 5)
-  const hasMoreQuestions = questions.length > 5
+  const displayedQuestions = showAllQuestions ? localQuestions : localQuestions.slice(0, 5)
+  const hasMoreQuestions = localQuestions.length > 5
 
   const toggleFlashcard = (index: number) => {
     setFlippedCards(prev => ({ ...prev, [index]: !prev[index] }))
@@ -51,6 +61,28 @@ export default function SummaryPanel({
   const handleExamAnswer = (qIndex: number, option: string) => {
     setSelectedAnswers(prev => ({ ...prev, [qIndex]: option }))
     setShowExplanations(prev => ({ ...prev, [qIndex]: true }))
+  }
+
+  const handleRegenerate = async (type: 'qa' | 'flashcards') => {
+    if (!noteId) return
+    const setLoader = type === 'qa' ? setIsRegeneratingQA : setIsRegeneratingFlashcards
+    setLoader(true)
+    try {
+      const res = await fetch(`/api/notes/${noteId}/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      })
+      const data = await res.json()
+      if (res.ok && data.data) {
+        if (type === 'qa') setLocalQuestions(data.data)
+        else setLocalFlashcards(data.data)
+      }
+    } catch (e) {
+      alert('Yeniden olusturma basarisiz oldu.')
+    } finally {
+      setLoader(false)
+    }
   }
 
   const handleSendMessage = async () => {
@@ -109,12 +141,12 @@ export default function SummaryPanel({
             <List className="w-4 h-4 inline-block mr-2" /> Maddeler
           </button>
         )}
-        {questions.length > 0 && (
+        {localQuestions.length > 0 && (
           <button onClick={() => setActiveTab('qa')} className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-t-lg transition-colors ${activeTab === 'qa' ? 'text-indigo-400 border-b-2 border-indigo-500 bg-white/5' : 'text-white/50 hover:text-white/80'}`}>
             <HelpCircle className="w-4 h-4 inline-block mr-2" /> Soru & Cevap
           </button>
         )}
-        {flashcards.length > 0 && (
+        {localFlashcards.length > 0 && (
           <button onClick={() => setActiveTab('flashcards')} className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-t-lg transition-colors ${activeTab === 'flashcards' ? 'text-indigo-400 border-b-2 border-indigo-500 bg-white/5' : 'text-white/50 hover:text-white/80'}`}>
             <Layers className="w-4 h-4 inline-block mr-2" /> Flashcards
           </button>
@@ -178,27 +210,43 @@ export default function SummaryPanel({
                 {showAllQuestions ? <><ChevronUp className="w-4 h-4" /> Daha Az Goster</> : <><ChevronDown className="w-4 h-4" /> Tumunu Goster</>}
               </button>
             )}
+            <button 
+              onClick={() => handleRegenerate('qa')} 
+              disabled={isRegeneratingQA}
+              className="w-full mt-3 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all disabled:opacity-50"
+            >
+              {isRegeneratingQA ? 'Oluşturuluyor...' : 'Tekrar Oluştur (Farklı Sorular)'}
+            </button>
           </div>
         )}
 
         {/* FLASHCARDS TAB */}
         {activeTab === 'flashcards' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-up">
-            {flashcards.map((card, i) => (
-              <div 
-                key={i} 
-                onClick={() => toggleFlashcard(i)}
-                className="glass rounded-2xl p-6 min-h-[160px] flex items-center justify-center text-center cursor-pointer hover:bg-white/5 transition-all relative [perspective:1000px]"
-              >
-                <div className={`transition-all duration-500 w-full h-full flex items-center justify-center ${flippedCards[i] ? 'opacity-0 scale-95 absolute' : 'opacity-100 scale-100'}`}>
-                  <p className="text-white font-semibold text-lg">{card.front}</p>
+          <div className="space-y-4 animate-fade-up">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {localFlashcards.map((card, i) => (
+                <div 
+                  key={i} 
+                  onClick={() => toggleFlashcard(i)}
+                  className="glass rounded-2xl p-6 min-h-[160px] flex items-center justify-center text-center cursor-pointer hover:bg-white/5 transition-all relative [perspective:1000px]"
+                >
+                  <div className={`transition-all duration-500 w-full h-full flex items-center justify-center ${flippedCards[i] ? 'opacity-0 scale-95 absolute' : 'opacity-100 scale-100'}`}>
+                    <p className="text-white font-semibold text-lg">{card.front}</p>
+                  </div>
+                  <div className={`transition-all duration-500 w-full h-full flex items-center justify-center ${flippedCards[i] ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`}>
+                    <p className="text-white/80 text-sm">{card.back}</p>
+                  </div>
+                  <div className="absolute bottom-2 right-3 text-[10px] text-white/30 uppercase tracking-widest">Tikla ve Cevir</div>
                 </div>
-                <div className={`transition-all duration-500 w-full h-full flex items-center justify-center ${flippedCards[i] ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`}>
-                  <p className="text-white/80 text-sm">{card.back}</p>
-                </div>
-                <div className="absolute bottom-2 right-3 text-[10px] text-white/30 uppercase tracking-widest">Tikla ve Cevir</div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <button 
+              onClick={() => handleRegenerate('flashcards')} 
+              disabled={isRegeneratingFlashcards}
+              className="w-full py-3 flex items-center justify-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all disabled:opacity-50"
+            >
+              {isRegeneratingFlashcards ? 'Oluşturuluyor...' : 'Tekrar Oluştur (Farklı Kartlar)'}
+            </button>
           </div>
         )}
 

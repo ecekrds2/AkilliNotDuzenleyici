@@ -15,7 +15,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   return NextResponse.json({
     ...note,
     bulletPoints: note.bulletPoints ? JSON.parse(note.bulletPoints) : [],
-    keywords: note.keywords ? JSON.parse(note.keywords) : [],
+    highlights: note.highlights ? JSON.parse(note.highlights) : [],
     questions: note.questions ? JSON.parse(note.questions) : [],
     flashcards: note.flashcards ? JSON.parse(note.flashcards) : [],
     examQuestions: note.examQuestions ? JSON.parse(note.examQuestions) : [],
@@ -27,21 +27,42 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const userId = (session.user as { id?: string }).id
-  const existing = await prisma.note.findFirst({ where: { id, userId } })
-  if (!existing) return NextResponse.json({ error: 'Not bulunamadi' }, { status: 404 })
+
   try {
-    const { title, content } = await req.json()
-    const summary = await summarize(content)
+    const { title, content, courseId, courseName: newCourseName } = await req.json()
+    if (!title || !content) return NextResponse.json({ error: 'Baslik ve icerik zorunlu' }, { status: 400 })
+
+    const note = await prisma.note.findUnique({ where: { id: id } })
+    if (!note || note.userId !== userId) return NextResponse.json({ error: 'Bulunamadi' }, { status: 404 })
+
+    let resolvedCourseId = courseId
+    let finalCourseName = undefined
+
+    if (newCourseName && !resolvedCourseId) {
+      // Find or create course
+      let course = await prisma.course.findFirst({
+        where: { userId, name: { equals: newCourseName, mode: 'insensitive' } }
+      })
+      if (!course) {
+        course = await prisma.course.create({ data: { name: newCourseName, userId, color: 'indigo' } })
+      }
+      resolvedCourseId = course.id
+      finalCourseName = course.name
+    } else if (resolvedCourseId) {
+      const course = await prisma.course.findUnique({ where: { id: resolvedCourseId } })
+      if (course) finalCourseName = course.name
+    }
+
+    const summary = await summarize(content, finalCourseName)
     const updated = await prisma.note.update({
-      where: { id },
+      where: { id: id },
       data: {
-        title,
-        content,
+        title, content, courseId: resolvedCourseId,
         shortSummary: summary.shortSummary,
         mediumSummary: summary.mediumSummary,
         detailedSummary: summary.detailedSummary,
         bulletPoints: JSON.stringify(summary.bulletPoints),
-        keywords: JSON.stringify(summary.keywords),
+        highlights: JSON.stringify(summary.highlights),
         questions: JSON.stringify(summary.questions),
         flashcards: JSON.stringify(summary.flashcards),
         examQuestions: JSON.stringify(summary.examQuestions),
@@ -49,13 +70,14 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
         wordCount: content.split(/\s+/).length,
       },
     })
+
     return NextResponse.json({
       ...updated,
       bulletPoints: summary.bulletPoints,
-      keywords: summary.keywords,
+      highlights: summary.highlights,
       questions: summary.questions,
       flashcards: summary.flashcards,
-      examQuestions: summary.examQuestions,
+      examQuestions: summary.examQuestions
     })
   } catch (error) {
     console.error('Note update error:', error)

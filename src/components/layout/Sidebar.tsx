@@ -2,11 +2,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Sparkles, LayoutDashboard, FileText, PlusCircle, LogOut, X } from 'lucide-react'
+import { Sparkles, LayoutDashboard, FileText, PlusCircle, LogOut, X, BookOpen } from 'lucide-react'
 import { useSidebar } from '@/lib/sidebar-context'
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/courses', icon: BookOpen, label: 'Derslerim' },
   { href: '/notes', icon: FileText, label: 'Notlarim' },
   { href: '/notes/new', icon: PlusCircle, label: 'Yeni Not' },
 ]

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
@@ -9,13 +9,20 @@ import Link from 'next/link'
 
 export default function NewNotePage() {
   const router = useRouter()
-  const [form, setForm] = useState({ title: '', content: '' })
+  const [form, setForm] = useState({ title: '', content: '', courseId: '', courseName: '' })
+  const [courses, setCourses] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0
+
+  useEffect(() => {
+    fetch('/api/courses').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setCourses(data)
+    })
+  }, [])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -97,17 +104,40 @@ export default function NewNotePage() {
               className="btn-ghost bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 text-sm py-2 px-4"
             >
               {parsing ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-              <span>PDF / DOCX Yukle</span>
+              <span className="hidden sm:inline ml-2">PDF / DOCX Yukle</span>
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 animate-fade-up">
-          <div>
-            <label className="block text-white/60 text-xs font-medium mb-2 uppercase tracking-wider">Baslik</label>
-            <input id="note-title" type="text" value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-              className="input-field text-lg font-medium" placeholder="Notun basligini girin..." required />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-white/60 text-xs font-medium mb-2 uppercase tracking-wider">Baslik</label>
+              <input id="note-title" type="text" value={form.title}
+                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                className="input-field text-lg font-medium" placeholder="Notun basligi..." required />
+            </div>
+            
+            <div>
+              <label className="block text-white/60 text-xs font-medium mb-2 uppercase tracking-wider">Ders (Opsiyonel)</label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <select 
+                  className="input-field text-sm w-full sm:w-1/2 appearance-none"
+                  value={form.courseId}
+                  onChange={e => setForm(f => ({ ...f, courseId: e.target.value, courseName: '' }))}
+                >
+                  <option value="">Seciniz...</option>
+                  {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                <input 
+                  type="text" 
+                  placeholder="Veya yeni ders ekle..."
+                  className="input-field text-sm w-full sm:w-1/2"
+                  value={form.courseName}
+                  onChange={e => setForm(f => ({ ...f, courseName: e.target.value, courseId: '' }))}
+                />
+              </div>
+            </div>
           </div>
 
           <div>

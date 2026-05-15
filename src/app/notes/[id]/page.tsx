@@ -17,6 +17,7 @@ export default function NoteDetailPage() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ title: '', content: '' })
+  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
     fetch(`/api/notes/${id}`)
@@ -122,16 +123,37 @@ export default function NoteDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-up">
-          <div className="glass rounded-2xl p-6">
+        <div className="flex flex-col gap-6 animate-fade-up">
+          {/* Icerik Alani */}
+          <div className="glass rounded-2xl p-6 relative">
             <h2 className="text-white/50 text-xs font-medium uppercase tracking-wider mb-4">Icerik</h2>
-            {editing
-              ? <textarea value={form.content}
-                  onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-                  className="input-field resize-none min-h-[400px] text-sm leading-relaxed w-full" />
-              : <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{note.content}</p>
-            }
+            {editing ? (
+              <textarea 
+                value={form.content}
+                onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                className="input-field resize-none min-h-[400px] text-sm leading-relaxed w-full" 
+              />
+            ) : (
+              <>
+                <div className={`relative ${!isExpanded ? 'max-h-[250px] overflow-hidden' : ''}`}>
+                  <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
+                    {renderHighlightedContent(note.content, note.highlights || [])}
+                  </p>
+                  {!isExpanded && (
+                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#111116] to-transparent" />
+                  )}
+                </div>
+                <button 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="mt-4 flex items-center justify-center w-full py-2 text-sm text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-all"
+                >
+                  {isExpanded ? 'Daha Az Goster' : 'Devamini Oku'}
+                </button>
+              </>
+            )}
           </div>
+
+          {/* AI Sonuclari Alani */}
           <div>
             {note.shortSummary ? (
               <SummaryPanel
@@ -144,6 +166,8 @@ export default function NoteDetailPage() {
                 examQuestions={note.examQuestions || []}
                 content={note.content}
                 language={note.language}
+                method="groq"
+                noteId={note.id}
               />
             ) : (
               <div className="glass rounded-2xl p-8 text-center">
@@ -155,4 +179,24 @@ export default function NoteDetailPage() {
       </main>
     </div>
   )
+}
+
+function renderHighlightedContent(content: string, highlights: string[]) {
+  if (!highlights || highlights.length === 0) return content
+
+  // Build a regex that safely matches any of the highlight strings
+  // Sort by length descending so longer phrases get matched first
+  const sorted = [...highlights].sort((a, b) => b.length - a.length)
+  const escaped = sorted.map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  const pattern = new RegExp(\`(\${escaped.join('|')})\`, 'gi')
+
+  const parts = content.split(pattern)
+  
+  return parts.map((part, i) => {
+    const isHighlight = sorted.some(h => h.toLowerCase() === part.toLowerCase())
+    if (isHighlight) {
+      return <span key={i} className="bg-yellow-500/30 text-yellow-200 px-1 rounded mx-0.5">{part}</span>
+    }
+    return part
+  })
 }

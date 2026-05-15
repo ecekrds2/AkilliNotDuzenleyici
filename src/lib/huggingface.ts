@@ -71,9 +71,9 @@ export async function summarizeWithHF(text: string): Promise<SummaryResult | nul
   return null
 }
 
-export async function summarize(text: string): Promise<SummaryResult> {
-  // 1. Gemini (En iyi free AI)
-  const geminiResult = await summarizeWithGemini(text)
+export async function summarize(text: string, courseName?: string): Promise<SummaryResult> {
+  // 1. Groq (En iyi free AI)
+  const geminiResult = await summarizeWithGemini(text, courseName)
   if (geminiResult) return geminiResult
 
   // 2. Hugging Face (Yedek AI)

@@ -17,15 +17,16 @@ export default async function DashboardPage() {
     where: { userId },
     orderBy: { createdAt: 'desc' },
     take: 5,
+    include: { course: true }
   })
+  
   const totalNotes = await prisma.note.count({ where: { userId } })
-  const allKeywords = notes.flatMap(n => (n.keywords ? JSON.parse(n.keywords) : []))
-  const uniqueKeywords = new Set(allKeywords).size
+  const totalCourses = await prisma.course.count({ where: { userId } })
   const totalWords = notes.reduce((acc, n) => acc + (n.wordCount || 0), 0)
 
   const stats = [
     { label: 'Toplam Not', value: totalNotes, icon: FileText, color: 'text-indigo-400', bg: 'bg-indigo-600/10 border-indigo-500/20' },
-    { label: 'Anahtar Kelime', value: uniqueKeywords, icon: Hash, color: 'text-purple-400', bg: 'bg-purple-600/10 border-purple-500/20' },
+    { label: 'Dersler', value: totalCourses, icon: Hash, color: 'text-purple-400', bg: 'bg-purple-600/10 border-purple-500/20' },
     { label: 'Toplam Kelime', value: totalWords.toLocaleString('tr-TR'), icon: TrendingUp, color: 'text-blue-400', bg: 'bg-blue-600/10 border-blue-500/20' },
   ]
 
