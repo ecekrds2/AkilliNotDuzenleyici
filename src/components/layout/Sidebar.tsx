@@ -11,7 +11,6 @@ const navItems = [
   { href: '/courses', icon: BookOpen, label: 'Derslerim' },
   { href: '/notes', icon: FileText, label: 'Notlarim' },
   { href: '/notes/new', icon: PlusCircle, label: 'Yeni Not' },
-  { href: '/dokumantasyon', icon: Book, label: 'Dokümantasyon' },
 ]
 
 export default function Sidebar() {
