@@ -9,6 +9,7 @@ export async function GET() {
   const userId = (session.user as { id?: string }).id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const notes = await prisma.note.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } })
+  return NextResponse.json(notes.map(n => ({
     ...n,
     bulletPoints: n.bulletPoints ? JSON.parse(n.bulletPoints) : [],
     highlights: n.highlights ? JSON.parse(n.highlights) : [],

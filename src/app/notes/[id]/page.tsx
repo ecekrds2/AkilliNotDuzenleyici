@@ -188,7 +188,7 @@ function renderHighlightedContent(content: string, highlights: string[]) {
   // Sort by length descending so longer phrases get matched first
   const sorted = [...highlights].sort((a, b) => b.length - a.length)
   const escaped = sorted.map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  const pattern = new RegExp(\`(\${escaped.join('|')})\`, 'gi')
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'gi')
 
   const parts = content.split(pattern)
   

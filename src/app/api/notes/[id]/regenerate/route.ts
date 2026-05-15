@@ -3,10 +3,14 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Groq from 'groq-sdk'
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> }
+
+export async function POST(req: NextRequest, { params }: RouteContext) {
+  const { id } = await params
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const userId = (session.user as { id?: string }).id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const { type } = await req.json()
@@ -14,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Gecersiz tip' }, { status: 400 })
     }
 
-    const note = await prisma.note.findUnique({ where: { id: params.id }, include: { course: true } })
+    const note = await prisma.note.findUnique({ where: { id: id }, include: { course: true } })
     if (!note || note.userId !== userId) return NextResponse.json({ error: 'Not bulunamadi' }, { status: 404 })
 
     const apiKey = process.env.GROQ_API_KEY
