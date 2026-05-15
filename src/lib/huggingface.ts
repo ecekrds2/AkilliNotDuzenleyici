@@ -59,7 +59,7 @@ export async function summarizeWithHF(text: string): Promise<SummaryResult | nul
         mediumSummary: summaryText,
         detailedSummary: summaryText,
         bulletPoints: offline.bulletPoints,
-        keywords: offline.keywords,
+        highlights: offline.highlights,
         questions: offline.questions,
         flashcards: offline.flashcards || [],
         examQuestions: offline.examQuestions || [],

@@ -39,10 +39,10 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
         </div>
       </div>
 
-      {note.keywords && note.keywords.length > 0 && (
+      {note.highlights && note.highlights.length > 0 && (
         <div className="flex items-center gap-2 mt-4 flex-wrap">
           <Hash className="w-3 h-3 text-white/20" />
-          {note.keywords.slice(0, 5).map(kw => (
+          {note.highlights.slice(0, 5).map(kw => (
             <span key={kw} className="badge bg-white/[0.04] border border-white/[0.08] text-white/50">{kw}</span>
           ))}
         </div>

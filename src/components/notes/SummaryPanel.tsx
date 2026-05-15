@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, List, Cpu, HelpCircle, ChevronDown, ChevronUp, Layers, CheckSquare, AlignLeft } from 'lucide-react'
 
 interface SummaryPanelProps {
@@ -7,7 +7,7 @@ interface SummaryPanelProps {
   mediumSummary?: string
   detailedSummary?: string
   bulletPoints: string[]
-  keywords?: string[]
+  highlights?: string[]
   questions?: { question: string, answer: string }[]
   flashcards?: { front: string, back: string }[]
   examQuestions?: { question: string, options: string[], answer: string, explanation: string }[]
