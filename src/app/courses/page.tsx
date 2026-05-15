@@ -7,6 +7,8 @@ import MobileHeader from '@/components/layout/MobileHeader'
 import Link from 'next/link'
 import { BookOpen, ChevronRight, PlusCircle, Sparkles } from 'lucide-react'
 
+import AddCourseButton from '@/components/courses/AddCourseButton'
+
 export default async function CoursesPage() {
   const session = await auth()
   if (!session?.user) redirect('/auth/login')
@@ -37,10 +39,7 @@ export default async function CoursesPage() {
             </h1>
             <p className="text-white/40 text-sm mt-1">Tüm dersleriniz ve notlarınız</p>
           </div>
-          <Link href="/notes/new" className="btn-primary inline-flex items-center gap-2 w-full sm:w-auto justify-center">
-            <PlusCircle className="w-4 h-4" />
-            Yeni Not ve Ders Ekle
-          </Link>
+          <AddCourseButton />
         </div>
 
         {courses.length === 0 ? (

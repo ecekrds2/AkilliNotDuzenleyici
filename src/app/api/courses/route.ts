@@ -6,11 +6,35 @@ export async function GET() {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const userId = (session.user as { id?: string }).id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   
-  const courses = await prisma.course.findMany({
+  let courses = await prisma.course.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' }
   })
+
+  // If no courses exist, seed default ones for existing and new users
+  if (courses.length === 0) {
+    const defaultCourses = [
+      { name: 'Matematik', color: 'blue' },
+      { name: 'Fizik', color: 'indigo' },
+      { name: 'Kimya', color: 'emerald' },
+      { name: 'Biyoloji', color: 'green' },
+      { name: 'Tarih', color: 'amber' },
+      { name: 'Coğrafya', color: 'orange' },
+      { name: 'Edebiyat', color: 'rose' }
+    ]
+    
+    await prisma.course.createMany({
+      data: defaultCourses.map(c => ({ ...c, userId }))
+    })
+
+    courses = await prisma.course.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    })
+  }
+
   return NextResponse.json(courses)
 }
 

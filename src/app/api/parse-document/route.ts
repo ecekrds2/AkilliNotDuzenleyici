@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ text: text.trim() })
-  } catch (error) {
+  } catch (error: any) {
     console.error('File parse error:', error)
-    return NextResponse.json({ error: 'Dosya okunurken bir hata olustu' }, { status: 500 })
+    return NextResponse.json({ error: 'Dosya okunurken bir hata olustu: ' + (error.message || 'Bilinmeyen hata') }, { status: 500 })
   }
 }

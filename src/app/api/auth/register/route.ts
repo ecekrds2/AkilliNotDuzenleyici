@@ -14,6 +14,22 @@ export async function POST(req: NextRequest) {
     }
     const hashed = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({ data: { name, email, password: hashed } })
+    
+    // Varsayılan ana dersleri oluştur
+    const defaultCourses = [
+      { name: 'Matematik', color: 'blue' },
+      { name: 'Fizik', color: 'indigo' },
+      { name: 'Kimya', color: 'emerald' },
+      { name: 'Biyoloji', color: 'green' },
+      { name: 'Tarih', color: 'amber' },
+      { name: 'Coğrafya', color: 'orange' },
+      { name: 'Edebiyat', color: 'rose' }
+    ]
+    
+    await prisma.course.createMany({
+      data: defaultCourses.map(c => ({ ...c, userId: user.id }))
+    })
+
     return NextResponse.json({ id: user.id, name: user.name, email: user.email }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Kayit basarisiz' }, { status: 500 })

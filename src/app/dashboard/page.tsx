@@ -5,7 +5,7 @@ import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
 import MobileHeader from '@/components/layout/MobileHeader'
 import Link from 'next/link'
-import { FileText, Hash, PlusCircle, Clock, TrendingUp, Sparkles } from 'lucide-react'
+import { FileText, Hash, PlusCircle, Clock, TrendingUp, Sparkles, CheckSquare } from 'lucide-react'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -22,12 +22,12 @@ export default async function DashboardPage() {
   
   const totalNotes = await prisma.note.count({ where: { userId } })
   const totalCourses = await prisma.course.count({ where: { userId } })
-  const totalWords = notes.reduce((acc, n) => acc + (n.wordCount || 0), 0)
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { answeredQuestions: true } })
 
   const stats = [
     { label: 'Toplam Not', value: totalNotes, icon: FileText, color: 'text-indigo-400', bg: 'bg-indigo-600/10 border-indigo-500/20' },
     { label: 'Dersler', value: totalCourses, icon: Hash, color: 'text-purple-400', bg: 'bg-purple-600/10 border-purple-500/20' },
-    { label: 'Toplam Kelime', value: totalWords.toLocaleString('tr-TR'), icon: TrendingUp, color: 'text-blue-400', bg: 'bg-blue-600/10 border-blue-500/20' },
+    { label: 'Çözülen Soru', value: user?.answeredQuestions || 0, icon: CheckSquare, color: 'text-green-400', bg: 'bg-green-600/10 border-green-500/20' },
   ]
 
   return (

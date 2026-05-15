@@ -58,9 +58,16 @@ export default function SummaryPanel({
     setFlippedCards(prev => ({ ...prev, [index]: !prev[index] }))
   }
 
-  const handleExamAnswer = (qIndex: number, option: string) => {
+  const handleExamAnswer = async (qIndex: number, option: string) => {
     setSelectedAnswers(prev => ({ ...prev, [qIndex]: option }))
     setShowExplanations(prev => ({ ...prev, [qIndex]: true }))
+    
+    // Increment the question count stat in the background
+    try {
+      await fetch('/api/user/increment-questions', { method: 'POST' })
+    } catch (e) {
+      // ignore
+    }
   }
 
   const handleRegenerate = async (type: 'qa' | 'flashcards') => {

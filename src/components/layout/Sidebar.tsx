@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Sparkles, LayoutDashboard, FileText, PlusCircle, LogOut, X, BookOpen } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useSidebar } from '@/lib/sidebar-context'
 
 const navItems = [
@@ -15,6 +16,15 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname()
   const { isOpen, setIsOpen } = useSidebar()
+  const [recentNotes, setRecentNotes] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch('/api/notes')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setRecentNotes(data.slice(0, 15)) // Show last 15 notes
+      })
+  }, [pathname]) // Refresh when pathname changes
 
   return (
     <>
@@ -68,6 +78,32 @@ export default function Sidebar() {
             )
           })}
         </nav>
+
+        <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pb-4">
+          <div className="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2 mt-2 px-2">
+            Son Notlar
+          </div>
+          <div className="space-y-0.5">
+            {recentNotes.map((note: any) => (
+              <Link 
+                key={note.id} 
+                href={`/notes/${note.id}`}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 px-2 py-2 rounded-lg transition-all duration-200 text-sm ${
+                  pathname === `/notes/${note.id}` 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50 shrink-0" />
+                <span className="truncate">{note.title}</span>
+              </Link>
+            ))}
+            {recentNotes.length === 0 && (
+              <p className="text-xs text-white/30 px-2 py-1">Henüz not yok.</p>
+            )}
+          </div>
+        </div>
 
         <div className="p-4 border-t border-white/[0.06]">
           <button 
